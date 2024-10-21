@@ -40,7 +40,7 @@ variable "cluster_version" {
 variable "github_user" {
   description = "Name of the Atlantis GitHub user"
   type        = string
-  default     = "octocat_mona"
+  default     = "octocat_monas"
 }
 
 variable "github_token" {
