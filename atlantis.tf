@@ -34,7 +34,7 @@ data "aws_eks_cluster_auth" "auth" {
 
 data "kubernetes_service" "nginx_ingress" {
 
-  depends_on = [module.eks]
+  depends_on = [module.eks, helm_release.nginx_ingress]
   metadata {
     name      = "nginx-ingress-ingress-nginx-controller"
     namespace = "ingress-nginx"
@@ -51,7 +51,7 @@ resource "kubernetes_namespace" "ingress_nginx" {
 
 
 resource "helm_release" "nginx_ingress" {
-  depends_on = [module.eks]
+  depends_on = [module.eks, kubernetes_namespace.ingress_nginx]
   name       = "nginx-ingress"
   namespace  = "ingress-nginx"
   chart      = "ingress-nginx"
@@ -73,7 +73,7 @@ EOF
 }
 
 resource "helm_release" "atlantis" {
-  depends_on = [module.eks]
+  depends_on = [module.eks, helm_release.nginx_ingress]
 
   name       = "atlantis"
   chart      = "atlantis"
