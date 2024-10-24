@@ -135,7 +135,7 @@ resource "helm_release" "atlantis" {
 
   set {
     name  = "ingress.path"
-    value = "/*"
+    value = "/"
   }
 
   set {
