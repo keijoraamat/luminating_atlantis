@@ -1,3 +1,7 @@
+data "aws_iam_role" "node_group_role" {
+  name = module.eks.eks_managed_node_groups.luminous.iam_role_name
+}
+
 # IAM roles for RBAC
 resource "aws_iam_role" "eks_admin_role" {
   name = "eks-admin-role"
@@ -88,48 +92,12 @@ resource "aws_iam_role_policy_attachment" "eks_worker_AmazonEKSWorkerNodePolicy"
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
 }
 
-resource "aws_iam_role_policy_attachment" "eks_worker_AmazonEC2ContainerRegistryReadOnly" {
-  role       = aws_iam_role.eks_worker_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-}
-
 resource "aws_iam_role_policy_attachment" "eks_worker_AmazonEKS_CNI_Policy" {
   role       = aws_iam_role.eks_worker_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
 }
 
-resource "kubernetes_config_map" "aws_auth" {
-  metadata {
-    name      = "aws-auth"
-    namespace = "kube-system"
-  }
-
-  data = {
-    mapRoles = yamlencode([
-      # Map the worker node IAM role
-      {
-        rolearn  = aws_iam_role.eks_worker_role.arn
-        username = "system:node:{{EC2PrivateDNSName}}"
-        groups   = ["system:bootstrappers", "system:nodes"]
-      }
-    ])
-
-    mapUsers = yamlencode([
-      # Map the admin IAM role
-      {
-        userarn  = aws_iam_role.eks_admin_role.arn
-        username = "eks-admin"
-        groups   = ["system:masters"]
-      },
-      # Map the read-only IAM role
-      {
-        userarn  = aws_iam_role.eks_read_only_role.arn
-        username = "eks-read-only"
-        groups   = ["system:aggregate-to-view"]
-      }
-    ])
-  }
-
-  depends_on = [module.eks]
+resource "aws_iam_role_policy_attachment" "ebs_csi_policy_attachment" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+  role       = data.aws_iam_role.node_group_role.name
 }
-
