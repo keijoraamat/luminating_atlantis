@@ -78,7 +78,7 @@ resource "helm_release" "atlantis" {
   name       = "atlantis"
   chart      = "atlantis"
   repository = "https://runatlantis.github.io/helm-charts"
-  #version    = "5.7.0"
+  version    = "5.7.0"
 
   set {
     name  = "github.user"

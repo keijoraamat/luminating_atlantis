@@ -4,17 +4,6 @@ locals {
   tags = {
     application = var.app_name
   }
-
-  # Split the ARN into parts
-  arn_parts = split("/", data.aws_caller_identity.current.arn)
-
-  # Get the last part of the ARN, which is the username or role name
-  caller_name = local.arn_parts[length(local.arn_parts) - 1]
-
-  # Determine if the caller is a user or a role based on the ARN format
-  is_user = length(regexall(":user/", data.aws_caller_identity.current.arn)) > 0
-
-  caller_arn = data.aws_caller_identity.current.arn
 }
 
 # Create a VPC with one public and one private subnet
